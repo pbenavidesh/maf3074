@@ -4,9 +4,7 @@ Version: 0.0.0.9000
 Authors@R: 
     person("Pablo", "Benavides-Herrera", , "pbenavides@iteso.mx", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4926-4763"))
-Description: Exercises and datasets for the lecture MAF3074 - Time Series 
-Analysis of the Mathematics and Physics Department (DMAF) at ITESO, Guadalajara,
-Mexico.
+Description: Exercises and datasets for the lecture MAF3074 - Time Series Analysis of the Mathematics and Physics Department (DMAF) at ITESO, Guadalajara, Mexico.
 License: `use_gpl3_license()`
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
