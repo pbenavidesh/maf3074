@@ -4,6 +4,8 @@
 # maf3074
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of maf3074 is to …
