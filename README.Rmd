@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of maf3074 is to ...
+The goal of `maf3074` is to 
 
 ## Installation
 
@@ -31,6 +31,8 @@ devtools::install_github("pbenavidesh/maf3074")
 ```
 
 ## Example
+
+*Pending...*
 
 This is a basic example which shows you how to solve a common problem:
 
@@ -49,8 +51,12 @@ You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-da
 
 You can also embed plots, for example:
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+```{r pressure, echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(fpp3)
+
+aus_production |>
+  autoplot(Cement, size = 1, color = "dodgerblue")
 ```
 
 In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.

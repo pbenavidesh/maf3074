@@ -8,7 +8,7 @@
 [![R-CMD-check](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of maf3074 is to …
+The goal of `maf3074` is to
 
 ## Installation
 
@@ -21,6 +21,8 @@ devtools::install_github("pbenavidesh/maf3074")
 ```
 
 ## Example
+
+*Pending…*
 
 This is a basic example which shows you how to solve a common problem:
 
