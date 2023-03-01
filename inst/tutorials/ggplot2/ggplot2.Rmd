@@ -9,6 +9,9 @@ output:
     progressive: TRUE
     allow_skip: TRUE
 runtime: shiny_prerendered
+description: > 
+  Learn about creating plots and graphs using 
+  `ggplot2`, `plotly`, and more.
 ---
 
 

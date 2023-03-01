@@ -2,6 +2,8 @@
 title: "Forecasting Basics"
 output: learnr::tutorial
 runtime: shiny_prerendered
+description: >
+  Learn the basics of a forecasting workflow using the `tidyverts` ecosystem (`tsibble`, `feasts`, `fable`).
 ---
 
 ```{r setup, include=FALSE}
