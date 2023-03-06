@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/pbenavidesh/maf3074/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of `maf3074` is to 
+The goal of `maf3074` is to provide a companion tool for the Time Series Forecasting (MAF3074) undergraduate course of the Department of Mathematics and Physics at [ITESO](https://iteso.mx). Here you will find tutorials, documentation, and exercises.
 
 ## Installation
 
