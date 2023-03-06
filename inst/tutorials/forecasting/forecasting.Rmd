@@ -1,6 +1,12 @@
 ---
 title: "Forecasting Basics"
-output: learnr::tutorial
+tutorial:
+  id: "forecasting"
+  version: 0.1
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
 runtime: shiny_prerendered
 description: >
   Learn the basics of a forecasting workflow using the `tidyverts` ecosystem (`tsibble`, `feasts`, `fable`).
@@ -8,69 +14,713 @@ description: >
 
 ```{r setup, include=FALSE}
 library(learnr)
+library(tidyverse)
+library(fpp3)
+library(lubridate)
+library(plotly)
+
+# tutorial_options(exercise.reveal_solution = TRUE)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
 
-## Topic 1
+## Quiz - Forecasting and beyond
 
-### Exercise 
+*Try to answer each question or exercise by yourself and without any external help. If neded, you can check your class notes, exercises, documentation online, or even your peers.*
 
-*Here's a simple exercise with an empty code chunk provided for entering the answer.*
 
-Write the R code required to add two plus two:
-
-```{r two-plus-two, exercise=TRUE}
-
-```
-
-### Exercise with Code
-
-*Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
-
-Now write a function that adds any two numbers and then call it:
-
-```{r add-function, exercise=TRUE, exercise.lines = 5}
-add <- function() {
-  
-}
-```
-
-## Topic 2
-
-### Exercise with Hint
-
-*Here's an exercise where the chunk is pre-evaulated via the `exercise.eval` option (so the user can see the default output we'd like them to customize). We also add a "hint" to the correct solution via the chunk immediate below labeled `print-limit-hint`.*
-
-Modify the following code to limit the number of rows printed to 5:
-
-```{r print-limit, exercise=TRUE, exercise.eval=TRUE}
-mtcars
-```
-
-```{r print-limit-hint}
-head(mtcars)
-```
-
-### Quiz
-
-*You can include any number of single or multiple choice questions as a quiz. Use the `question` function to define a question and the `quiz` function for grouping multiple questions together.*
-
-Some questions to verify that you understand the purposes of various base and recommended R packages:
-
-```{r quiz}
+```{r quiz-forecasting}
 quiz(
-  question("Which package contains functions for installing other R packages?",
-    answer("base"),
-    answer("tools"),
-    answer("utils", correct = TRUE),
-    answer("codetools")
+  caption = "Let's see what you've learned regarding the forecasting workflow so far. Answer the following questions to the best of your abilities.",
+  question(
+    "What are the type of components that a time series can exhibit?",
+    answer(
+      "Seasonal component(s).",
+      correct = TRUE
+    ),
+    answer(
+      "A trend-cycle component.",
+      correct = TRUE
+    ),
+    answer(
+      "A residual component.",
+      correct = TRUE
+    ),
+    answer(
+      "A fluctuating component.",
+      correct = FALSE,
+      message = "Surely, each of a time series' components can fluctuate over time, but that is not a type of component."
+    ),
+    answer(
+      "Autocorrelation component.",
+      correct = FALSE,
+      message = "A time series can be autocorrelated, however, the autocorrelation would not be a component by itself."
+    ),
+    random_answer_order = TRUE,
+    allow_retry = TRUE
   ),
-  question("Which of the R packages listed below are used to create plots?",
-    answer("lattice", correct = TRUE),
-    answer("tools"),
-    answer("stats"),
-    answer("grid", correct = TRUE)
+  question(
+    "What is the purpose of performing calendar, population, or inflation adjustments to a time series?",
+    answer(
+      "Reduce/remove variation that is not relevant to the forecast/analysis done.",
+      correct = TRUE
+    ),
+    answer(
+      "Make the time series look prettier.",
+      correct = FALSE,
+      message = "It is not nice to judge anyone by its looks. Not even a time series. All time series are beautiful in their own way."
+    ),
+    answer(
+      "Correct possible heteroscedasticity in the ts.",
+      correct = FALSE,
+      message = "Heteroscedasticity, or time-variant variance is dealt with using math transformations, such as log or Box-Cox transformations."
+    ),
+    answer(
+      "To remove the trend from it.",
+      correct = FALSE,
+      message = "The trend (or the seasonal) component can be removed after performing a TS Decomposition, not really by these adjustments."
+    ),
+    random_answer_order = TRUE,
+    allow_retry = TRUE
   )
 )
 ```
+
+```{r quiz-forecasting-ex, exercise=TRUE, exercise.lines=10}
+# This is here just in case you need to run any R code.
+```
+
+## Forecasting - Prerequisites
+
+Let's do some exercises and practice what we've seen so far. We will download some data and go through all the forecasting workflow. To start, load the necessary packages into the environment.
+
+```{r pkgs, exercise=TRUE}
+library(___)
+library(___)
+```
+
+<div id="pkgs-hint">
+**Hint:** We will work with packages from the `tidyverse`, and use the `fable` ecosystem for forecasting. A shortcut for it would be loading the `tidyverse` and `fpp3` packages.
+</div>
+
+### Importing data
+
+To simplify the data importing step, we will import a time series directly from the [FRED](https://fred.stlouisfed.org/) website using the `tq_get()` function from the **tidyquant** package. In this case we will work with the Advance Retail Sales, specifically sales from Food and Beverages stores (`RSDBSN`). Go ahead and load it and save it to a variable called `ex1_tbl`. Some code is already provided for you.
+
+```{r import, exercise=TRUE}
+___ <- tidyquant::tq_get(
+  x    = ___,
+  get  = ___,
+  from = "1992-01-01"
+)
+```
+
+```{r import-hint-1}
+ex1_tbl <- tidyquant::tq_get(
+  x    = ___,
+  get  = ___,
+  from = "1992-01-01"
+)
+```
+
+```{r import-hint-2}
+ex1_tbl <- tidyquant::tq_get(
+  x    = "RSDBSN",
+  get  = ___,
+  from = "1992-01-01"
+)
+```
+
+```{r import-solution}
+ex1_tbl <- tidyquant::tq_get(
+  x    = "RSDBSN",
+  get  = "economic.data",
+  from = "1992-01-01"
+)
+```
+
+
+### Wrangling the data
+
+Inspect the data frame you just downloaded using function `class()`.
+
+```{r tbl_class, exercise = TRUE, exercise.setup = "import-solution"}
+
+```
+
+```{r tbl_class-hint}
+class(___)
+```
+
+
+You should see something like:
+
+```{r}
+c("tbl_df", "tbl", "data.frame")
+```
+
+The first argument **`tbl_df`** indicates we have a `tibble`. We must convert it to a **`tsibble`**. But first, we need to make sure our **date** variable is in the correct format for your time series. Change it if needed and overwrite `ex1_tbl`, otherwise leave it as is.
+
+```{r date_format, exercise = TRUE, exercise.setup = "import-solution"}
+ex1_tbl <- ex1_tbl |> 
+  ___()
+```
+
+```{r date_format-hint}
+# You can use `mutate()`, along with functions such as:
+ex1_tbl <- ex1_tbl |> 
+  mutate(
+    date = yearmonth(___), # for monthly data.
+  )
+# Depending on your data, use instead `yearweek()`, `yearquarter()`, `year()`, ...
+```
+
+```{r date_format-solution, exercise.setup = "import-solution"}
+ex1_tbl <- ex1_tbl |> 
+  mutate(
+    date = yearmonth(date)
+  )
+```
+
+
+Now you can convert your `tibble` into a `tsibble`. Do so using `as_tsibble()` and store your result now in a variable named `ex1_tsbl`.
+
+```{r tsibble_q}
+question(
+  "Any given `tsibble` needs an *index*, which is the date variable. When do you need to specify the `key` argument for the `tsibble` to work?",
+  answer(
+    "When you data frame is in a *long* format, and you have **more than one time series** in the data frame.",
+    correct = TRUE
+  ),
+  answer(
+    "Always.",
+    correct = FALSE,
+    message = "You don't necessarily need to specify it all the time. Only if you have multiple time series within the same data frame."
+  ),
+  random_answer_order = TRUE,
+  allow_retry = TRUE
+)
+```
+
+```{r tsibble, exercise = TRUE, exercise.setup = "date_format-solution"}
+ex1_tsbl <- ___
+```
+
+```{r tsibble-hint}
+ex1_tsbl <- ex1_tbl |> 
+  as_tsibble(
+    ___
+  )
+```
+
+```{r tsibble-solution, exercise.setup = "date_format-solution"}
+ex1_tsbl <- ex1_tbl |> 
+  as_tsibble(
+    index = date,
+    key   = symbol
+  )
+```
+
+
+Check now the class of this new variable `ex1_tsbl`:
+
+```{r tsibble_class, exercise = TRUE, exercise.setup = "tsibble-solution"}
+
+```
+
+```{r tsibble_class-solution}
+class(ex1_tsbl)
+```
+
+It should now display as its first argument `tbl_ts`, which indicates the object is a `tsibble`.
+
+
+### Train/test splits
+
+Split your data set so that you have the last **2 years** as test data. Save your training set to a variable called `ex1_train`.
+
+```{r train_test, exercise=TRUE, exercise.setup = "tsibble-solution"}
+ex1_train <- ___
+```
+
+<div id="train_test-hint">
+**Hint:** Use a filtering or slicing function, such as `filter_index()`, `filter()`, `slice()`,...
+</div>
+
+```{r train_test-solution, exercise.setup = "tsibble-solution"}
+ex1_train <- ex1_tsbl |>
+  filter_index(. ~ "2021-01-01")
+```
+
+
+## Exploratory Data Analysis
+
+### Visualization
+
+#### Time plot
+
+Plot your training set using `autoplot()`.
+
+```{r time_plot, exercise=TRUE, exercise.setup="train_test-solution"}
+
+```
+
+
+```{r time_plot_quiz}
+quiz(
+  caption = "Which patterns do you see on it?",
+  question(
+    "Seasonality",
+    answer(
+      "Yes",
+      correct = TRUE
+    ),
+    answer(
+      "No"
+    )
+  ),
+  question(
+    "Trend",
+    answer(
+      "Yes",
+      correct = TRUE
+    ),
+    answer(
+      "No"
+    )
+  ),
+  question(
+    "Constant variance (Homoscedasticity)",
+    answer(
+      "Yes"
+    ),
+    answer(
+      "No",
+      correct = TRUE
+    )
+  )
+)
+```
+
+#### Mathematical Transformations
+
+It seems that we may need a transformation to stabilize the variance of the ts. Try using a log transformation and plot it to verify if it works:
+
+```{r transform, exercise=TRUE, exercise.setup="train_test-solution"}
+
+```
+
+**If you decided a transformation was in order, remember to use it from here on over.**
+
+#### Season plot
+
+Now let's check a **season plot**, to get a closer look about the seasonality.
+
+```{r season_plot, exercise=TRUE, exercise.setup="train_test-solution"}
+
+```
+
+```{r season_plot-hint}
+ex1_train |> 
+  gg_season(___)
+```
+
+There are many other types of plots that could aid you in getting more insights from the data. Feel free to try them here:
+
+```{r more_plots, exercise=TRUE, exercise.lines=40, exercise.setup="train_test-solution"}
+
+```
+
+<div id="more_plots">
+**Hint:** Subseries plots, autocorrelation plots, time series decomposition, ...
+</div>
+
+## Modeling the time series
+
+So far, we only know the basic benchmark models (*Mean, Naïve, Seasonal Naïve, and Drift* methods). Based upon what you've discovered from this time series so far, create a `mable` (table of models) estimating those which you consider will fit better to the data. Store the `mable` in `ex1_fit`.
+
+*If you chose to use a transformation, remember to apply it inside the model specification, so that R can detect it.*
+
+```{r mable, exercise=TRUE, exercise.setup="train_test-solution"}
+ex1____ <- ex1____ |> 
+  ___
+```
+
+```{r mable-hint-1}
+ex1_fit <- ex1_train |> 
+  ___
+```
+
+```{r mable-hint-2}
+ex1_fit <- ex1_train |> 
+  model(
+    ___
+  )
+```
+
+```{r mable-hint-3}
+ex1_fit <- ex1_train |> 
+  model(
+    seasonal_naive = ___,
+    drift          = ___,
+    ...
+  )
+```
+
+```{r mable-hint-4}
+ex1_fit <- ex1_train |> 
+  model(
+    seasonal_naive = (SNAIVE(___),
+    drift          = RW(___ ~ drift())
+  )
+```
+
+```{r mable-solution, exercise.setup = "train_test-solution"}
+ex1_fit <- ex1_train |> 
+  model(
+    seasonal_naive = SNAIVE(log(price)),
+    drift          = RW(log(price) ~ drift())
+  )
+```
+
+### Model evaluation
+
+How can you tell if your model(s) fit the data correctly? We can do so in several ways:
+
+- Checking the residual diagnostics
+  - Visually
+  - Using statistical tests, such as the Ljung-Box test for autocorrelation.
+- Verify the error metrics on the training set.
+
+```{r quiz_resid}
+quiz(
+  question(
+  "We expect the residuals of the model to be entirely **white noise**. A variable can be considered white noise if:",
+  answer(
+    "It has no significant autocorrelation.",
+    correct = TRUE
+  ),
+  answer(
+    "It exhibits no trend.",
+    correct = TRUE
+  ),
+  answer(
+    "It has no seasonality",
+    correct = TRUE
+  ),
+  answer(
+    "Its variance is 1.",
+    correct = FALSE,
+    message = "A white noise series can have any variance."
+  ),
+  random_answer_order = TRUE,
+  allow_retry = TRUE
+  ),
+  question(
+    "When referring to the **residuals** of a model, besides what it was said on the previous question, we also check that:",
+    answer(
+      "The mean is close to zero.",
+      correct = TRUE
+    ),
+    answer(
+      "They are normally distributed.",
+      correct = TRUE
+    ),
+    answer(
+      "They present homoscedasticity (time-invariant variance).",
+      correct = TRUE
+    ),
+    answer(
+      "The variance is close to one.",
+      correct = FALSE,
+      message = "Again, the variance can take any value, as long as it is fixed in time."
+    )
+  )
+)
+```
+
+### Residual diagnostics
+
+Do the residual diagnostics with the help of the `gg_tsresiduals()` function.
+
+```{r gg_tsresid, exercise=TRUE, exercise.setup="mable-solution"}
+
+```
+
+<div id="gg_tsresid-hint">
+**Hint:** If you have more than one model, or more than one time series on your `mable`, then you will need to do it one by one: `select()` the corresponding column, and `filter()` each time series separately.
+</div>
+
+### Portmanteau tests
+
+To further assess whether the model(s) provided are producing white noise residuals, test it out using Ljun-Box.
+
+```{r ljung_box, exercise=TRUE, exercise.setup="mable-solution"}
+ex1___ |> 
+  ___ |> 
+  features(___, ___, lag = 24, dof = 0)
+```
+
+```{r ljung_box-hint-1}
+ex1_fit |>
+  ___ |> 
+  features(___, ___, lag = 24, dof = 0)
+```
+
+```{r ljung_box-hint-2}
+ex1_fit |> 
+  ___ |> 
+  features(___, ___, lag = 24, dof = 0)
+```
+
+```{r ljung_box-hint-3}
+ex1_fit |> 
+  augment() |> 
+  features(___, ___, lag = 24, dof = 0)
+```
+
+```{r ljung_box-hint-4}
+ex1_fit |> 
+  augment() |> 
+  features(.innov, ljung_box, lag = 24, dof = 0)
+```
+
+### Training Accuracy
+
+Use the `accuracy()` function together with the `mable` to see the different error metrics calculated on the training set.
+
+```{r train_accuracy, exercise = TRUE, exercise.setup = "mable-solution"}
+
+```
+
+```{r train_accuracy-hint-1}
+accuracy(___)
+```
+
+```{r train_accuracy-solution}
+accuracy(ex1_fit)
+```
+
+### Model with decomposition
+
+Let's add another model to our analysis, using a STL decomposition and model each component independently. Save this new model in `ex1_fit_dcmp`:
+
+```{r fit_dcmp, exercise = TRUE, exercise.setup = "mable-solution"}
+ex1_fit_dcmp <- ___ 
+```
+
+```{r fit_dcmp-hint-1}
+ex1_fit_dcmp <- ex1_train |> 
+  model(___)
+```
+
+```{r fit_dcmp-hint-2}
+ex1_fit_dcmp <- ex1_train |> 
+  model(
+    stlf = decomposition_model(___)
+  )
+```
+
+```{r fit_dcmp-hint-3}
+ex1_fit_dcmp <- ex1_train |> 
+  model(
+    stlf = decomposition_model(
+      STL(price, robust = TRUE),
+      ___(___), # model the seasonality
+      ___(___) # model the season adjusted series
+    )
+  )
+```
+
+```{r fit_dcmp-hint-4}
+ex1_fit_dcmp <- ex1_train |> 
+  model(
+    stlf = decomposition_model(
+      STL(price, robust = TRUE),
+      ___(___), # model the seasonality
+      ___(___) # model the season adjusted series
+    )
+  )
+```
+
+```{r fit_dcmp-hint-5}
+ex1_fit_dcmp <- ex1_train |> 
+  model(
+    stlf = decomposition_model(
+      STL(price, robust = TRUE),
+      ___(season_year), # model the seasonality
+      ___(season_adjust) # model the season adjusted series
+    )
+  )
+```
+
+```{r fit_dcmp-solution, exercise.setup = "mable-solution"}
+ex1_fit_dcmp <- ex1_train |> 
+  model(
+    stlf = decomposition_model(
+      STL(log(price), robust = TRUE),
+      SNAIVE(season_year),
+      RW(season_adjust ~ drift()) 
+    )
+  )
+ex1_fit_dcmp
+```
+
+Now join this new model with our original `mable` using `left_join()`:
+
+```{r join_mable, exercise = TRUE, exercise.setup = "fit_dcmp-solution"}
+ex1_fit <- ___
+```
+
+```{r join_mable-solution, exercise.setup = "fit_dcmp-solution"}
+ex1_fit <- ex1_fit |> 
+  left_join(ex1_fit_dcmp)
+```
+
+## Forecasting on the test set
+
+### Getting the `fable`
+
+Produce forecasts for the test set. Store the `fable` (*forecast table*) in `ex1_fc`.
+
+```{r fcst, exercise = TRUE, exercise.setup = "join_mable-solution"}
+ex1_fc <- ___
+```
+
+```{r fcst-hint-1}
+ex1_fc <- ex1_fit |> 
+  forecast(___)
+```
+
+```{r fcst-hint-2}
+ex1_fc <- ex1_fit |> 
+  forecast(h = ___)
+```
+
+```{r fcst-solution, exercise.setup = "join_mable-solution"}
+ex1_fc <- ex1_fit |> 
+  forecast(h = "2 years")
+```
+
+### Forecast plots
+
+Plot the forecasts produced by each model, along with the training and test set. **Tip:** you'll need the `fable`, and the full `tsibble`.
+
+```{r fc_plot, exercise = TRUE, exercise.setup = "fcst-solution"}
+ex1_fc |> 
+  autoplot(___)
+```
+
+```{r fc_plot-solution}
+ex1_fc |> 
+  autoplot(ex1_tsbl)
+```
+
+Try splitting each forecast in its own subplot, defining free scales for the $y$ axis:
+
+```{r fc_plot_facet, exercise = TRUE, exercise.setup = "fcst-solution"}
+ex1_fc |> 
+  autoplot(ex1_tsbl) +
+  ___
+```
+
+```{r fc_plot_facet-hint-1}
+ex1_fc |> 
+  autoplot(ex1_tsbl) +
+  facet_wrap(___)
+```
+
+```{r fc_plot_facet-hint-2}
+ex1_fc |> 
+  autoplot(ex1_tsbl) +
+  facet_wrap(~ .model, ___)
+```
+
+```{r fc_plot_facet-hint-3}
+ex1_fc |> 
+  autoplot(ex1_tsbl) +
+  facet_wrap(~ .model, scales = ___)
+```
+
+```{r fc_plot_facet-solution}
+ex1_fc |> 
+  autoplot(ex1_tsbl) +
+  facet_wrap(~ .model, scales = "free_y", ncol = 1)
+```
+
+### Forecasting errors
+
+Estimate the forecast errors on the test set using the `accuracy()` function. You now need to provide the `fable`, and the full `tsibble`.
+
+```{r test_accuracy, exercise = TRUE, exercise.setup = "fcst-solution"}
+___ |> 
+  accuracy(___)
+```
+
+```{r test_accuracy-hint-1}
+ex1_fc |> 
+  accuracy(___)
+```
+
+```{r test_accuracy-solution}
+ex1_fc |> 
+  accuracy(ex1_tsbl)
+```
+
+## Forecasting the future
+
+### Refitting the best model
+
+It seems that the model that produces the best forecasts is the one with decomposition (`stlf`). Refit this model using the whole data (not just the training set). Store your newly fit model into `ex1_fit_fut`
+
+```{r refit, exercise = TRUE, exercise.setup = "fcst-solution"}
+ex1_fit_fut <- ___
+```
+
+```{r refit-hint-1}
+ex1_fit_fut <- ex1_tsbl |> 
+  model(___) # use the exact same decomposition model.
+```
+
+```{r refit-solution, exercise.setup = "fcst-solution"}
+ex1_fit_fut <- ex1_tsbl |> 
+  model(
+    stlf = decomposition_model(
+      STL(log(price), robust = TRUE),
+      SNAIVE(season_year),
+      RW(season_adjust ~ drift()) 
+    )
+  )
+ex1_fit_fut
+```
+
+### Forecast the future
+
+Produce a 2-year forecast into the future. Save it to `ex1_fc_fut`
+
+```{r fcst_future, exercise = TRUE, exercise.setup = "refit-solution"}
+ex1_fc_fut <- ex1_fit_fut |> 
+  ___
+```
+
+```{r fcst_future-solution, exercise.setup = "refit-solution"}
+ex1_fc_fut <- ex1_fit_fut |> 
+  forecast(h = "2 years")
+```
+
+### Forecast plot
+
+Plot the final forecast.
+
+```{r fc_plot_fut, exercise = TRUE, exercise.setup = "fcst_future-solution"}
+
+```
+
+```{r fc_plot_fut-solution}
+ex1_fc_fut |> 
+  autoplot(ex1_tsbl)
+```
+
+### 
+
+**Congrats! You've succesfully done a forecast of the Food and Beverages stores' sales.**
