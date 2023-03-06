@@ -206,11 +206,11 @@ mpg %>%
 
 Ahora cree una *gráfica de tiempo* con los datos precargados de `pasajeros`:
 
-```{r prepare-pass}
+```{r prepare_pass}
 pasajeros <- as_tsibble(AirPassengers)
 ```
 
-```{r passengers, exercise=TRUE, exercise.lines = 5, exercise.setup = "prepare-pass"}
+```{r passengers, exercise=TRUE, exercise.lines = 5, exercise.setup = "prepare_pass"}
 
 ```
 <div id="passengers-hint">
@@ -221,7 +221,7 @@ pasajeros <- as_tsibble(AirPassengers)
 
 Ahora, cambia el tipo de línea a una línea punteada de color ladrillo (`firebrick`).
 
-```{r pass, exercise=TRUE, exercise.lines = 5, exercise.setup = "prepare-pass"}
+```{r pass, exercise=TRUE, exercise.lines = 5, exercise.setup = "prepare_pass"}
 
 ```
 
@@ -235,13 +235,13 @@ pasajeros %>%
 
 Para estos ejercicios, se proporciona el precio histórico de algunas acciones. Esto se encuentra guardado en `acciones`.
 
-```{r prepare-stock}
+```{r prepare_stock}
 acciones <- gafa_stock
 ```
 
 ¿Cuántas acciones distintas tiene esta muestra?
 
-```{r stock, exercise=TRUE, exercise.lines=4, exercise.setup = "prepare-stock"}
+```{r stock, exercise=TRUE, exercise.lines=4, exercise.setup = "prepare_stock"}
 
 ```
 
@@ -259,11 +259,11 @@ acciones %>%
 
 Muestra el histórico del precio de cierre (`Close`) todas las acciones en la misma gráfica, identificando cada una por colores distintos.
 
-```{r stock-ts, exercise=TRUE, exercise.lines=5, exercise.setup = "prepare-stock"}
+```{r stock_ts, exercise=TRUE, exercise.lines=5, exercise.setup = "prepare_stock"}
 
 ```
 
-```{r stock-ts-hint}
+```{r stock_ts-hint}
 acciones %>% 
   ggplot(aes(x = Date, y = Close, color = ___)) +
   geom_line()
@@ -273,11 +273,11 @@ acciones %>%
 
 Si todo salió bien, tendrás una gráfica con una línea por cada acción. ¿Se alcanza a percibir bien el comportamiento de cada una? Seguramente no, ya que la escala es muy diferente entre ellas. Prueba realizando una transformación (con logaritmo base 10) al eje *y*, para ver si se puede ver mejor el comportamiento de todas.
 
-```{r stock-ts-log, exercise=TRUE, exercise.lines=6, exercise.setup = "prepare-stock"}
+```{r stock_ts_log, exercise=TRUE, exercise.lines=6, exercise.setup = "prepare_stock"}
 
 ```
 
-```{r stock-ts-log-solution}
+```{r stock_ts_log-solution}
 acciones %>% 
   ggplot(aes(x = Date, y = Close, color = Symbol)) +
   geom_line() +
@@ -302,7 +302,7 @@ Cree subgráficos para cada conjunto de autos que tienen el mismo tren motriz (`
 
 Ahora, sobre eso mismo, agrega colores dependiendo la transmisión (`trans`). Adicionalmente, cambia la forma de todos los puntos a que sean triángulos. 
 
-```{r facets-col, exercise=TRUE, exercise.lines = 7}
+```{r facets_col, exercise=TRUE, exercise.lines = 7}
 
 ```
 <div id="facets-col-hint">
@@ -313,25 +313,26 @@ Ahora, sobre eso mismo, agrega colores dependiendo la transmisión (`trans`). Ad
 
 Filtra la tabla `acciones`, para que solo tengas el último trimestre de 2015 y guárdalo en la variable `acciones_q415`.
 
-```{r stocks-filter, exercise=TRUE, exercise.lines=5}
+```{r stocks_filter, exercise=TRUE, exercise.lines=5, exercise.setup="prepare_stock"}
 
 ```
-```{r stocks-filter-hint-1}
+
+```{r stocks_filter-hint-1}
 acciones_q415 <- acciones %>% 
   filter(___)
 ```
 
-```{r stocks-filter-hint-2}
+```{r stocks_filter-hint-2}
 acciones_q415 <- acciones %>% 
   filter(yearquarter(Date) == ___)
 ```
 
-```{r stocks-filter-hint-3}
+```{r stocks_filter-hint-3}
 acciones_q415 <- acciones %>% 
   filter(yearquarter(Date) == yearquarter(___))
 ```
 
-```{r stocks-filter-hint-4}
+```{r stocks_filter-hint-4}
 acciones_q415 <- acciones %>% 
   filter(yearquarter(Date) == yearquarter("2015 Q4"))
 ```
@@ -348,8 +349,8 @@ Con su nueva variable `acciones_q415`, realice una gráfica de tiempo interactiv
 
 Su gráfica se debería ver algo así:
 
-```{r, fig.height=8, fig.width=8, warning=FALSE}
-p1 <- gafa_stock %>% 
+```{r, exercise.setup="stocks_filter" fig.height=8, fig.width=8, warning=FALSE}
+p1 <- acciones %>% 
   filter(yearquarter(Date) == yearquarter("2015 Q4")) %>%
   ggplot(aes(x = Date, y = Close, color = Symbol)) +
   geom_point(aes(size = Volume, 
@@ -362,11 +363,11 @@ ggplotly(p1)
 ```
 
 
-```{r stocks-int-plot, fig.width=8, fig.height=8, exercise=TRUE, exercise.lines = 15}
+```{r stocks_int_plot, fig.width=8, fig.height=8, exercise=TRUE, exercise.setup="stocks_filter" exercise.lines = 15}
 
 ```
 
-```{r stocks-int-plot-hint-1}
+```{r stocks_int_plot-hint-1}
 p1 <- acciones_q415 %>% 
   ggplot(aes(x = , y = , 
              color = )) +
@@ -381,7 +382,7 @@ p1 <- acciones_q415 %>%
 ggplotly(p1)
 ```
 
-```{r stocks-int-plot-hint-2}
+```{r stocks_int_plot-hint-2}
 p1 <- acciones_q415 %>% 
   ggplot(aes(x = , y = , 
              color = )) +
@@ -396,7 +397,7 @@ p1 <- acciones_q415 %>%
 ggplotly(p1)
 ```
 
-```{r stocks-int-plot-hint-3}
+```{r stocks_int_plot-hint-3}
 p1 <- acciones_q415 %>% 
   ggplot(aes(x = Date, y = Close, 
              color = Symbol)) +
