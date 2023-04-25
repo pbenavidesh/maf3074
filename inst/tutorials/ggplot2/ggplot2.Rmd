@@ -349,8 +349,8 @@ Con su nueva variable `acciones_q415`, realice una gráfica de tiempo interactiv
 
 Su gráfica se debería ver algo así:
 
-```{r, exercise.setup="stocks_filter" fig.height=8, fig.width=8, warning=FALSE}
-p1 <- acciones %>% 
+```{r, fig.height=8, fig.width=8, warning=FALSE}
+p1 <- gafa_stock %>% 
   filter(yearquarter(Date) == yearquarter("2015 Q4")) %>%
   ggplot(aes(x = Date, y = Close, color = Symbol)) +
   geom_point(aes(size = Volume, 
@@ -363,7 +363,7 @@ ggplotly(p1)
 ```
 
 
-```{r stocks_int_plot, fig.width=8, fig.height=8, exercise=TRUE, exercise.setup="stocks_filter" exercise.lines = 15}
+```{r stocks_int_plot, fig.width=8, fig.height=8, exercise=TRUE, exercise.setup="stocks_filter", exercise.lines = 15}
 
 ```
 
