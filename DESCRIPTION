@@ -12,7 +12,6 @@ URL: https://github.com/pbenavidesh/maf3074
 BugReports: https://github.com/pbenavidesh/maf3074/issues
 Imports: 
     stringr,
-    shiny,
     quarto
 Suggests: 
     learnr,
