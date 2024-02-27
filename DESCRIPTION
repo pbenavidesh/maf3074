@@ -11,7 +11,8 @@ License: MIT + file LICENSE
 URL: https://github.com/pbenavidesh/maf3074
 BugReports: https://github.com/pbenavidesh/maf3074/issues
 Imports: 
-    stringr
+    stringr,
+    shiny
 Suggests: 
     learnr,
     testthat (>= 3.0.0)
