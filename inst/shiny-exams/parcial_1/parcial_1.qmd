@@ -1,0 +1,348 @@
+---
+title: "Examen parcial 1"
+date: today
+format: 
+  html:
+    embed-resources: true
+    toc: true
+    theme: 
+     light: minty
+     dark: superhero
+execute: 
+  echo: false
+server: shiny
+---
+
+```{r}
+#| label: setup
+#| context: setup
+#| include: false
+library(shiny)
+library(shinyWidgets)
+library(shinyvalidate)
+library(plotly)
+# library(DT)
+library(tidyverse)
+library(fpp3)
+```
+
+```{r}
+#| label: data
+#| context: data
+#| include: false
+alumnos <- read_csv("alumnos.csv") |> 
+  rename(nombre = Nombre, correo = `Identificador de inicio de sesión`, id = `Identificación del SIS`) |> 
+  arrange(id)
+
+alumnos <- alumnos |> 
+  mutate(
+    examen = rep_len(1:7, length.out = nrow(alumnos))
+  )
+
+usuarios <- pull(alumnos, nombre)
+names(usuarios) <- pull(alumnos, correo)
+
+source("series.R")
+
+datos <- series
+
+serie_exp <- series_exp
+
+serie_code <- series_code
+```
+
+## Inicio:
+
+```{r}
+#| label: user
+textInput(inputId = "usr",
+          label = "Introduzca su correo institucional completo:",
+          placeholder = "...@iteso.mx")
+
+h3(textOutput(outputId = "nombre"))
+```
+
+```{r}
+#| label: user-serv
+#| context: server
+
+iv <- InputValidator$new()
+
+iv$add_rule("usr", sv_required(message = "Es necesario introducir su correo institucional."))
+iv$add_rule("usr", sv_email(message = "No es un correo válido."))
+
+iv$enable()
+
+serie <- reactive({
+  alumnos |> 
+    filter(correo == input$usr) |> 
+    pull(examen)
+})
+
+serie_tsbl <- reactive({
+  datos[[serie()]]
+})
+
+output$nombre <- renderText({
+  req(iv$is_valid())
+  usuarios[input$usr]
+})
+
+serie_code_quote <- reactive({
+  serie_code[[serie()]]
+})
+```
+
+
+## Instrucciones
+
+- Abra el examen en el explorador (Chrome, etc.)
+- Lea cuidadosamente todas las indicaciones.
+- Asegúrese de que su nombre se muestra al escribir su correo institucional. En caso de que no, contacte al profesor de inmediato.
+- Los puntos se otorgan a respuestas **completas**.
+- La serie de tiempo que le tocó servirá para todos los ejercicios del examen.
+- Al finalizar el examen, mande imprimir y guarde en formato **`PDF`** su examen y súbalo a CANVAS.
+- Queda estrictamente prohibida toda forma de comunicación con otras personas.
+- Puede subir documentos adicionales (en PDF o HTML) si así lo requiere. Asegúrese de que está bien renderizado.
+
+:::{.callout-warning collapse="true"}
+## Consulta de notas y uso de IA
+
+Para responder el examen pueden consultar todas sus notas, documentos de clase, e incluso utilizar IA (p. ej. ChatGPT). Si deciden utilizar alguna herramienta de IA, es necesario subir documentado su uso y **revisar y analizar** los resultados de ella. Si entregan el puro resultado del chat, se invalida el ejercicio.
+:::
+
+## Ej. 1
+
+```{r}
+#| label: ej_1
+
+textOutput("ej_1_exp")
+```
+
+```{r}
+#| label: ej_1_serv
+#| context: server
+
+output$ej_1_exp <- renderText({paste("La serie que le corresponde analizar es", serie_exp[serie()])})
+```
+
+:::{.panel-tabset}
+
+## Gráfica
+
+```{r}
+#| label: time_plot
+plotlyOutput("time_plot")
+```
+
+## tsibble
+
+```{r}
+verbatimTextOutput("tsibble")
+```
+
+## Tabla
+
+```{r}
+dataTableOutput("tsibble_dt")
+```
+
+## Código
+
+:::{.callout-tip appearance="simple"}
+
+Si desea descargar los datos y trabajarlos a la par en una nueva sesión, puede utilizar el siguiente código:
+
+:::
+
+```{r}
+verbatimTextOutput("code")
+```
+
+
+```{r}
+#| context: server
+
+output$time_plot <- renderPlotly({
+  serie_tsbl() |> 
+    autoplot()
+})
+
+output$tsibble <- renderPrint({serie_tsbl()})
+
+output$tsibble_dt <- renderDataTable({serie_tsbl()}, options = list(
+              "pageLength" = 10))
+
+output$code <- renderPrint({serie_code_quote()})
+```
+
+
+
+:::
+
+### a)
+
+* Describa a la serie de la forma más detallada posible *(evite rollo innecesario)*.
+* Puede mencionar si detecta algún patrón.
+
+```{r}
+textAreaInput(
+  inputId = "ej_1_a_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 8,
+  resize = "both"
+)
+```
+
+### b)
+
+* Para efectos de modelar la serie, ¿requiere realizar algún ajuste y/o transformación? En caso de que sí, ¿cuál y por qué?
+
+```{r}
+textAreaInput(
+  inputId = "ej_1_b_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 8,
+  resize = "both"
+)
+```
+
+
+### c)
+
+* ¿Sería útil realizar una descomposición para esta serie?, ¿por qué?
+* Si su respuesta fue positiva, ¿cuál tipo de descomposición propondría para este caso?
+
+```{r}
+textAreaInput(
+  inputId = "ej_1_c_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 8,
+  resize = "both"
+)
+```
+
+
+## Ej. 2
+
+De acuerdo a los datos que le tocó, cree un escenario de negocios en el cual podrían contratarle para modelarlos y crear pronósticos. Responda lo siguiente:
+
+- ¿Cuál sería el propósito del pronóstico?
+- ¿Qué utilizarían de datos de entrenamiento y cuáles de validación?
+
+### a)
+
+```{r}
+textAreaInput(
+  inputId = "ej_2_a_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 8,
+  resize = "both"
+)
+```
+
+### b)
+
+- ¿Qué horizonte de pronóstico establecerían?
+
+```{r}
+textAreaInput(
+  inputId = "ej_2_b_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 5,
+  resize = "both"
+)
+```
+
+- ¿Cuál métrica de error utilizarían para estimar el error de pronóstico?, ¿por qué?
+
+```{r}
+textAreaInput(
+  inputId = "ej_2_c_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 7,
+  resize = "both"
+)
+```
+
+
+## Ej. 3
+
+Siguiendo con su respuesta del Ej. 2, responda a continuación:
+
+### a)
+
+- ¿Cuál(es) modelo(s) estimaría para la serie que se le asignó?, ¿por qué?
+
+```{r}
+textAreaInput(
+  inputId = "ej_3_a_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 12,
+  resize = "both"
+)
+```
+
+
+### b)
+
+- Construya aquí la tabla de modelo(s) (`mable`) como la pondría en su flujo de pronóstico:
+
+```{r}
+textAreaInput(
+  inputId = "ej_3_b_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 12,
+  resize = "both"
+)
+```
+
+### c)
+
+- Efectúe el diagnóstico de residuos y coloque aquí sus conclusiones al respecto. *Recuerde subir un documento de Quarto en HTML o PDF detallando esto.*
+
+```{r}
+textAreaInput(
+  inputId = "ej_3_b_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 10,
+  resize = "both"
+)
+```
+
+### d)
+
+- Una vez que haya encontrado buenos modelos, produzca los pronósticos que mencionó en el ejercicio 2.
+
+```{r}
+textAreaInput(
+  inputId = "ej_3_b_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 10,
+  resize = "both"
+)
+```
+
+## Ej. 4
+
+- Escriba debajo sus conclusiones del análisis que realizó.
+
+```{r}
+textAreaInput(
+  inputId = "ej_3_b_resp",
+  label = "Escriba su respuesta:",
+  width = "100%",
+  rows = 14,
+  resize = "both"
+)
+```

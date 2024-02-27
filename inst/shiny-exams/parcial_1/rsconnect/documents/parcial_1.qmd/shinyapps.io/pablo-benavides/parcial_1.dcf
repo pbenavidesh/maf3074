@@ -1,0 +1,14 @@
+name: parcial_1
+title: parcial_1
+username: pablo-benavides
+account: pablo-benavides
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11339934
+bundleId: 8302020
+url: https://pablo-benavides.shinyapps.io/parcial_1/
+version: 1
+quarto_version: 1.4.542
+quarto_engines: knitr
+asMultiple: FALSE
+asStatic: FALSE
