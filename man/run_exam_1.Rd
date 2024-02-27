@@ -10,5 +10,5 @@ run_exam_1()
 Run the exam
 }
 \examples{
-run_exam_1()
+# run_exam_1()
 }
